@@ -71,7 +71,7 @@ function App() {
 
   useEffect(async () => {
     setDisabledSearch(true);
-    let requests = JSON.parse(localStorage.getItem("requests"));
+    let requests = JSON.parse(localStorage.getItem("requests"))|| [];
 
     if (requests.length) {
       setRequests(requests);

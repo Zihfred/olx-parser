@@ -8,13 +8,15 @@
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "corsproxy": "^1.5.0",
+    "midi-sounds-react": "^1.2.54",
     "prettier": "^2.0.4",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-html-parser": "^2.0.2",
     "react-scripts": "3.4.1",
     "react-tageditor": "^0.2.3",
-    "styled-components": "^5.1.0"
+    "styled-components": "^5.1.0",
+    "use-sound": "^1.0.1"
   },
   "scripts": {
     "start": "react-scripts start",

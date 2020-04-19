@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import AddRequestForm from "./components/AddRequestForm/AddRequestForm";
 import API from "./server/Api";
 import Grid from "@material-ui/core/Grid";
@@ -11,17 +11,47 @@ import CardActions from "@material-ui/core/CardActions";
 import styled from "styled-components";
 import FindedItem from "./components/FindedItem/FindedItem";
 import TagEditor from "react-tageditor/lib/TagEditor";
+import { MIDISounds } from "midi-sounds-react";
+import useSound from "use-sound";
+import sound from "./sound/sound.mp3";
 
+function useInterval(callback, delay) {
+  const savedCallback = useRef();
+
+  // Remember the latest callback.
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+
+  // Set up the interval.
+  useEffect(() => {
+    function tick() {
+      savedCallback.current();
+    }
+    if (delay !== null) {
+      let id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+  }, [delay]);
+}
 
 function App() {
-
   const [disabledSearch, setDisabledSearch] = useState(false);
   const [showedData, setShowedData] = useState([]);
+  const [fetchedData, setFetchedData] = useState([]);
   const [search, setSearch] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [requests, setRequests] = useState([]);
+  const [play] = useSound(sound);
+
   let newDataToShow = [];
+
+  const deleteRequest = (name) => {
+    let newRequests = requests.filter(item=>item !== name)
+    setRequests([...newRequests])
+    localStorage.setItem("requests", JSON.stringify(newRequests));
+  }
 
   const handleChange = (e) => {
     setSearch(e.target.value);
@@ -34,51 +64,89 @@ function App() {
   };
 
   const updateShowedData = (data) => {
-    const newData = JSON.parse(JSON.stringify(showedData))
+    const newData = JSON.parse(JSON.stringify(showedData));
 
-      setShowedData([...showedData,...data])
-  }
+    setShowedData([...showedData, ...data]);
+  };
 
-  const addSearcher = (q) => {
+  useEffect(async () => {
+    setDisabledSearch(true);
+    let requests = JSON.parse(localStorage.getItem("requests"));
+
+    if (requests.length) {
+      setRequests(requests);
+
+      const data = await Promise.all(
+        requests.map((requestName) => {
+
+          return[
+          API.getData({
+            q: requestName,
+            page: 1,
+            maxPrice: maxPrice,
+            minPrice: minPrice,
+          }),
+          API.getData({
+            q: requestName,
+            page: 2,
+            maxPrice: maxPrice,
+            minPrice: minPrice,
+          }),
+          API.getData({
+            q: requestName,
+            page: 3,
+            maxPrice: maxPrice,
+            minPrice: minPrice,
+          }),
+        ]}).flat(1)
+      );
+
+      setFetchedData([...fetchedData, ...data.flat(1)]);
+       setDisabledSearch(false);
+    }
+  }, []);
+
+  useInterval(async () => {
+    if (!disabledSearch) {
+      const data = await Promise.all(
+        requests.map((requestName) =>
+          API.getData({
+            q: requestName,
+            page: 1,
+            maxPrice: maxPrice,
+            minPrice: minPrice,
+          })
+        )
+      );
+      let newValues = [];
+      data.flat(1).forEach((item) => {
+        if (fetchedData.map((item) => item.name).indexOf(item.name) === -1) {
+          console.log(item);
+          newValues.push(item);
+          play();
+        }
+      });
+      setFetchedData(fetchedData.concat(newValues));
+      setShowedData(showedData.concat(newValues));
+    }
+  }, 5000);
+
+  useEffect(() => {
+    console.log(showedData);
+  }, [showedData]);
+
+  const addSearcher = async (q) => {
     setDisabledSearch(true);
     setSearch("");
     setMaxPrice("");
     setMinPrice("");
-    Promise.all([
+    const data = await Promise.all([
       API.getData({ q: q, page: 1, maxPrice: maxPrice, minPrice: minPrice }),
       API.getData({ q: q, page: 2, maxPrice: maxPrice, minPrice: minPrice }),
       API.getData({ q: q, page: 3, maxPrice: maxPrice, minPrice: minPrice }),
-    ])
-      .then((values) => {
-        setDisabledSearch(false);
-        return { [q]: values.flat(1) };
-      })
-      .then((newState) => {
-        console.log(newState);
-        setInterval(()=>{
-          API.getData({
-            q: q,
-            page: 6,
-            maxPrice: maxPrice,
-            minPrice: minPrice,
-          }).then((data) => {
-            console.log(newState);
-            console.log(data);
-
-            data.forEach((item) => {
-              if (
-                newState[q].map((item) => item.name).indexOf(item.name) === -1
-              ) {
-                console.log(item);
-                newState[q].push(item);
-                newDataToShow.push(item);
-              }
-            });
-            return newDataToShow;
-          }).then(updateShowedData);
-        },5000)
-
-      });
+    ]);
+    setFetchedData([...fetchedData, ...data.flat(1)]);
+    setDisabledSearch(false);
   };
 
   const createSearcher = () => {
@@ -101,23 +169,24 @@ function App() {
         minPrice={minPrice}
       />
       <Paper>
-        {requests && requests.map((item) => <Typography>{item}</Typography>)}
+        {requests && requests.map((item) => <Typography onClick={()=>deleteRequest(item)}>{item}</Typography>)}
       </Paper>
-      <Paper>
+      <StyledPaper>
         {showedData &&
-        showedData
-          .reverse()
-            .map((item) => (
-              <FindedItem name={item.name} path={item.path} key={item.path} />
-            ))}
-      </Paper>
+          showedData.map((item) => (
+            <FindedItem name={item.name} path={item.path} key={item.path} />
+          ))}
+      </StyledPaper>
     </div>
   );
 }
 
+const StyledPaper = styled(Paper)`
+  display: flex;
+  flex-direction: column-reverse;
+`
+
 export default App;
-
-
 
 // .reduce(
 //   (acc, city) => {

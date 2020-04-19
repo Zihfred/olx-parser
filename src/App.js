@@ -103,6 +103,8 @@ function App() {
 
       setFetchedData([...fetchedData, ...data.flat(1)]);
        setDisabledSearch(false);
+    }else {
+      setDisabledSearch(false);
     }
   }, []);
 

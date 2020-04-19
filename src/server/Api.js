@@ -19,9 +19,29 @@ class API {
         'Access-Control-Allow-Origin': '*'
       },
       method: 'POST',
-      body: `q=${body.q}&page=${body.page}`
-    });
-  }
+      body: `q=${body.q}&page=${body.page}&search[filter_float_price:from]=${body.minPrice}&search[filter_float_price:to]=${body.maxPrice}`
+    }).then((data) => data.text())
+      .then((data) => {
+        const parser = new DOMParser();
+        const newData = Array.from(
+          parser
+            .parseFromString(data.toString(), "text/html")
+            .querySelectorAll(".fixed .breakword")
+        )
+          .filter((item) => !item.querySelector(".paid"))
+          .map((item) => item.querySelector(".detailsLink"))
+          .map((item) => {
+            return {
+              path: item.pathname,
+              name: item.childNodes[1].alt,
+            };
+          });
+
+        return newData;
+      })}
+
+
+
   getPostById = async () =>
     fetch(`https://rickandmortyapi.com/api/`).then(res => {
       if (res.ok) {

@@ -183,7 +183,7 @@ function App() {
       />
       <StyledRequests>
         <Typography align="center" variant="h4">Requests List:</Typography>
-        {requests && requests.map((item) => <StyledRequestItem onClick={()=>deleteRequest(item.name)}>{`Name:${item.name} Price:${item.minPrice}-${item.maxPrice}`}</StyledRequestItem>)}
+        {requests && requests.map((item) => <StyledRequestItem onClick={()=>deleteRequest(item.name)}>{`${item.name} | ${item.minPrice}-${item.maxPrice}`}</StyledRequestItem>)}
 
       </StyledRequests>
       <StyledPaper>

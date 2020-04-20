@@ -14,7 +14,7 @@ const FindedItem = ({ name, path }) => {
   return (
     <StyledCard  clicked={clicked}>
       <CardContent>
-        <Typography color="textSecondary" variant="h3">
+        <Typography color="textSecondary" variant="h5">
           {name}
         </Typography>
       </CardContent>
@@ -33,6 +33,7 @@ text-decoration: none;
 
 const StyledCard = styled(Card)`
 &&&{
+  margin: 10px;
   background: ${props => props.clicked  ? 'green' : 'rgba(235, 148, 148, 1)'};
   }
 `

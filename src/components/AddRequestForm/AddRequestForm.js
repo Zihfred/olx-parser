@@ -8,19 +8,28 @@ const AddRequestForm = ({ onClick, onChange, value,disabled,onMinChange,onMaxCha
 
   return (
     <StyledWrap>
-      <TextField
+      <StyledInput
+        variant="outlined"
         name="q"
         type="text"
         label="Name"
         onChange={onChange}
         value={value}
       />
-      <TextField name="minPrice" label="Min price" value={minPrice} onChange={onMinChange} />
-      <TextField name="maxPrice" label="Max price" value={maxPrice} onChange={onMaxChange}/>
-      <Button disabled={disabled} onClick={onClick}>Add</Button>
+      <StyledInput variant="outlined" name="minPrice" label="Min price" value={minPrice} onChange={onMinChange} />
+      <StyledInput variant="outlined" name="maxPrice" label="Max price" value={maxPrice} onChange={onMaxChange}/>
+      <StyledButton disabled={!(!disabled && value)} variant="outlined" onClick={onClick}>Add</StyledButton>
     </StyledWrap>
   );
 };
+
+const StyledInput = styled(TextField)`
+margin: 10px;
+`
+
+const StyledButton = styled(Button)`
+margin: 10px;
+`
 
 const StyledWrap  = styled.div`
  display: flex;

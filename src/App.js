@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import AddRequestForm from "./components/AddRequestForm/AddRequestForm";
+import './App.css'
 import API from "./server/Api";
 import Grid from "@material-ui/core/Grid";
 import { Paper } from "@material-ui/core";
@@ -14,6 +15,7 @@ import TagEditor from "react-tageditor/lib/TagEditor";
 import { MIDISounds } from "midi-sounds-react";
 import useSound from "use-sound";
 import sound from "./sound/sound.mp3";
+import Container from "@material-ui/core/Container";
 
 function useInterval(callback, delay) {
   const savedCallback = useRef();
@@ -48,7 +50,7 @@ function App() {
   let newDataToShow = [];
 
   const deleteRequest = (name) => {
-    let newRequests = requests.filter(item=>item !== name)
+    let newRequests = requests.filter(item=>item.name !== name)
     setRequests([...newRequests])
     localStorage.setItem("requests", JSON.stringify(newRequests));
   }
@@ -77,26 +79,26 @@ function App() {
       setRequests(requests);
 
       const data = await Promise.all(
-        requests.map((requestName) => {
+        requests.map((item) => {
 
           return[
           API.getData({
-            q: requestName,
+            q: item.name,
             page: 1,
-            maxPrice: maxPrice,
-            minPrice: minPrice,
+            maxPrice: item.maxPrice,
+            minPrice: item.minPrice,
           }),
           API.getData({
-            q: requestName,
+            q: item.name,
             page: 2,
-            maxPrice: maxPrice,
-            minPrice: minPrice,
+            maxPrice: item.maxPrice,
+            minPrice: item.minPrice,
           }),
           API.getData({
-            q: requestName,
+            q: item.name,
             page: 3,
-            maxPrice: maxPrice,
-            minPrice: minPrice,
+            maxPrice: item.maxPrice,
+            minPrice: item.minPrice,
           }),
         ]}).flat(1)
       );
@@ -111,14 +113,15 @@ function App() {
   useInterval(async () => {
     if (!disabledSearch) {
       const data = await Promise.all(
-        requests.map((requestName) =>
-          API.getData({
-            q: requestName,
+        requests.map((item) =>{
+            console.log(item)
+          return API.getData({
+            q: item.name,
             page: 1,
-            maxPrice: maxPrice,
-            minPrice: minPrice,
+            maxPrice: item.maxPrice,
+            minPrice: item.minPrice,
           })
-        )
+    })
       );
       let newValues = [];
       data.flat(1).forEach((item) => {
@@ -153,13 +156,21 @@ function App() {
 
   const createSearcher = () => {
     addSearcher(search);
-    localStorage.setItem("requests", JSON.stringify(requests.concat(search)));
-    setRequests(requests.concat(search));
+    localStorage.setItem("requests", JSON.stringify(requests.concat({
+      minPrice: minPrice,
+      maxPrice: maxPrice,
+      name: search,
+    })));
+    setRequests(requests.concat({
+      minPrice: minPrice,
+      maxPrice: maxPrice,
+      name: search,
+    }));
   };
 
   useEffect(() => {}, []);
   return (
-    <div className="App">
+    <Container maxWidth="md" className="App">
       <AddRequestForm
         value={search}
         onChange={handleChange}
@@ -170,22 +181,45 @@ function App() {
         maxPrice={maxPrice}
         minPrice={minPrice}
       />
-      <Paper>
-        {requests && requests.map((item) => <Typography onClick={()=>deleteRequest(item)}>{item}</Typography>)}
-      </Paper>
+      <StyledRequests>
+        <Typography align="center" variant="h4">Requests List:</Typography>
+        {requests && requests.map((item) => <StyledRequestItem onClick={()=>deleteRequest(item.name)}>{`Name:${item.name} Price:${item.minPrice}-${item.maxPrice}`}</StyledRequestItem>)}
+
+      </StyledRequests>
       <StyledPaper>
         {showedData &&
           showedData.map((item) => (
             <FindedItem name={item.name} path={item.path} key={item.path} />
           ))}
       </StyledPaper>
-    </div>
+    </Container>
   );
 }
 
 const StyledPaper = styled(Paper)`
+  background: rgba(255, 255, 255, 0.3);;
+  padding: 10px;
   display: flex;
   flex-direction: column-reverse;
+  margin: 10px;
+`
+const StyledRequestItem = styled(Typography)`
+cursor: pointer;
+
+  border: 1px solid black;
+  margin: 5px !important;
+  padding: 5px;
+  display: inline-block;
+  :hover {
+    background-color: black;
+    color: white;
+  }
+`
+
+const StyledRequests = styled(Paper)`
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.3);
+  margin: 10px;
 `
 
 export default App;

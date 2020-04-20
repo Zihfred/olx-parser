@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
 import CardActions from "@material-ui/core/CardActions";
@@ -7,35 +7,38 @@ import Card from "@material-ui/core/Card";
 import styled from "styled-components";
 
 const FindedItem = ({ name, path }) => {
-  const [clicked,setClicked] = useState(false);
+  const [clicked, setClicked] = useState(false);
 
   const handleClick = () => setClicked(true);
 
   return (
-    <StyledCard  clicked={clicked}>
+    <StyledCard clicked={clicked}>
       <CardContent>
         <Typography color="textSecondary" variant="h5">
           {name}
         </Typography>
       </CardContent>
       <CardActions>
-        <Button size="small"  onClick={handleClick}>
-          <Link href={`https://www.olx.ua/${path}`} target="_blank" >Go to site</Link>
-        </Button>
+        <Link href={`https://www.olx.ua/${path}`} target="_blank">
+          <Button size="small" onClick={handleClick}>
+            Go to site{" "}
+          </Button>
+        </Link>
       </CardActions>
     </StyledCard>
   );
 };
 
 const Link = styled.a`
-text-decoration: none;
-`
+  text-decoration: none;
+`;
 
 const StyledCard = styled(Card)`
-&&&{
-  margin: 10px;
-  background: ${props => props.clicked  ? 'green' : 'rgba(235, 148, 148, 1)'};
+  &&& {
+    margin: 10px;
+    background: ${(props) =>
+      !props.clicked ? "rgba(33, 194, 76, 0.5)" : "rgba(235, 148, 148, 0.5)"};
   }
-`
+`;
 
 export default FindedItem;

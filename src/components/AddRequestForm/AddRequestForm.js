@@ -34,7 +34,8 @@ margin: 10px;
 const StyledWrap  = styled.div`
  display: flex;
  flex-direction: column;
- width: 500px;
+ max-width: 500px;
+ width: 100%;
  margin: 0 auto;
 `
 

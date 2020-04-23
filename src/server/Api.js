@@ -11,7 +11,7 @@ class API {
           "en-US,en;q=0.9,ru-UA;q=0.8,ru-RU;q=0.7,ru;q=0.6,uk;q=0.5",
         dnt: "1",
         origin: "https://www.olx.ua",
-        referer: "https://www.olx.ua/list/q-napa/",
+        referer: `https://www.olx.ua/list/q-${body.q}/`,
         "sec-fetch-dest": "empty",
         "sec-fetch-mode": "empty",
         "sec-fetch-site": "same-origin",

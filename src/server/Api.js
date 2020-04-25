@@ -19,7 +19,7 @@ class API {
         "Access-Control-Allow-Origin": "*",
       },
       method: "POST",
-      body: `q=${body.q}&page=${body.page}&search[filter_float_price:from]=${body.minPrice}&search[filter_float_price:to]=${body.maxPrice}`,
+      body: `q=${body.q}&page=${body.page}&search[filter_float_price:from]=${body.minPrice}&search[filter_float_price:to]=${body.maxPrice}&search[category_id]: 50`,
     })
       .then((data) => data.text())
       .then((data) => {
@@ -39,10 +39,10 @@ class API {
           })
           .filter((item) => {
             if (item && !item.name) return false;
-            console.log(item.name,body.q)
-            return item.name
-              .toLowerCase()
-              .indexOf(body.q.toLocaleLowerCase()) >= 0;
+            console.log(item.name, body.q);
+            return (
+              item.name.toLowerCase().indexOf(body.q.toLocaleLowerCase()) >= 0
+            );
           });
 
         return newData;
